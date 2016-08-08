@@ -1,0 +1,39 @@
+
+logfile = ""
+
+#option配置
+[options]
+#redis 配置
+[options.redis]
+    #日志文件
+    logfile = ""
+    #代理监听设置
+    addr = ":8080"
+    read_timeout = 0
+    write_timeout = 0
+    pool_timeout = 0
+
+    #远程连接设置
+    raddr = "192.168.56.102:6379"
+    ruser = ""
+    rpass = ""
+    rpool_size = 0
+    ridle_timeout = 0
+    ridle_check_frequency = 3
+
+#redis2 配置
+[options.redis2]
+    #日志文件
+    logfile = ""
+    addr = ":8081"
+    read_timeout = 0
+    write_timeout = 0
+    pool_timeout = 0
+
+    #远程连接设置
+    raddr = "192.168.56.102:6379"
+    ruser = ""
+    rpass = ""
+    rpool_size = 0
+    ridle_timeout = 0
+    ridle_check_frequency = 3
