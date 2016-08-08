@@ -8,6 +8,9 @@ Pool Proxy
 
 该工具提供了一个透明的代理接口，可以为下游程序提供带连接池的代理功能
 
+## TODO
+目前仅实现了redis的代理功能
+
 ## Installation
 
 `go get `
