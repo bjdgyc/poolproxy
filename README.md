@@ -1,4 +1,4 @@
-#redispool
+#poolproxy
 
 ## Introduction
 Pool Proxy
@@ -11,6 +11,10 @@ Pool Proxy
 ## TODO
 目前仅实现了redis的代理功能
 
+本地使用时，建议监听`Unix domain socket`
+可以有效减少TCP握手消耗，提高系统性能
+
+
 ## Installation
 
 `go get `
@@ -22,7 +26,10 @@ Pool Proxy
 [options.redis]
     #日志文件
     logfile = ""
-    #代理监听设置
+    # 代理监听设置
+    # 可以设置为Unix socket
+    # 如: /var/run/poolproxy.socket
+    # 也可以设置为TCP端口
     addr = ":8080"
     read_timeout = 0
     write_timeout = 0
