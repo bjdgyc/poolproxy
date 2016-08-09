@@ -19,7 +19,7 @@ logfile = ""
     rpass = ""
     rpool_size = 0
     ridle_timeout = 0
-    ridle_check_frequency = 3
+    ridle_check_frequency = 0
 
 #redis2 配置
 [options.redis2]
@@ -36,4 +36,4 @@ logfile = ""
     rpass = ""
     rpool_size = 0
     ridle_timeout = 0
-    ridle_check_frequency = 3
+    ridle_check_frequency = 0

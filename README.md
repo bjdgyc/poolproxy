@@ -14,10 +14,15 @@ Pool Proxy
 本地使用时，建议监听`Unix domain socket`
 可以有效减少TCP握手消耗，提高系统性能
 
+## Scene
+
+该工具适用于，无法通过自身实现连接池的语言
+
+如`PHP`等
 
 ## Installation
 
-`go get `
+`go get github.com/bjdgyc/poolproxy`
 
 ## Toml config
 
@@ -40,8 +45,10 @@ Pool Proxy
     ruser = ""
     rpass = ""
     rpool_size = 0
+    # 获取空闲连接的排队超时时间（秒）
     ridle_timeout = 0
-    ridle_check_frequency = 3
+    # 定期检测空闲连接的时间（秒）
+    ridle_check_frequency = 120
     
 ```
 
