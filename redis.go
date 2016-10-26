@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-type Redis struct{
+type Redis struct {
 	conn *Conn
 }
 
