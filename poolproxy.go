@@ -3,9 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/bjdgyc/slog"
 	"net/http"
 	_ "net/http/pprof"
+
+	"poolproxy/slog"
 )
 
 var (
@@ -21,26 +22,25 @@ func main() {
 	config := LoadConfig(*cfile)
 
 	if config.Logfile != "" {
-		commonLog = slog.New(config.Logfile, "")
+		commonLog.SetLogfile(config.Logfile)
 	}
 
 	for _, opt := range config.Options {
 
-		logger := commonLog
 		if opt.Logfile != "" {
-			logger = slog.New(opt.Logfile, "")
+			commonLog.SetLogfile(opt.Logfile)
 		}
 
-		connPool = NewConnPool(opt, logger)
+		connPool = NewConnPool(opt, commonLog)
 		go StartProxy(connPool, opt.Addr)
-		fmt.Println(connPool)
+		fmt.Println(opt.Addr, connPool)
 	}
 
 	go func() {
 		http.ListenAndServe("127.0.0.1:8090", nil)
 	}()
 
-	//connPool.Close()
+	// connPool.Close()
 	InitSignal()
 
 }

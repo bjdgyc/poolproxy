@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-//监听连接
+// 监听连接
 func StartProxy(connPool *ConnPool, addr string) {
 	n := "unix"
 	if strings.Contains(addr, ":") {
@@ -31,7 +31,7 @@ func StartProxy(connPool *ConnPool, addr string) {
 
 }
 
-//数据交换方法
+// 数据交换方法
 func HandlerData(connPool *ConnPool, local net.Conn) {
 
 	connPool.log.Debug("remote addr:", local.RemoteAddr())

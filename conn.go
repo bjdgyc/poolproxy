@@ -2,18 +2,19 @@ package main
 
 import (
 	"bufio"
-	"github.com/bjdgyc/slog"
 	"net"
 	"time"
+
+	"poolproxy/slog"
 )
 
-//读取连接的channel类型
+// 读取连接的channel类型
 type ChanBuf struct {
 	Byte []byte
 	Err  error
 }
 
-//链接处理的接口
+// 链接处理的接口
 type Conner interface {
 	Ping() error
 	Auth(string, string) error
@@ -30,9 +31,9 @@ type Conn struct {
 	log       *slog.Logger
 }
 
-//创建新的远程连接
-//如果配置文件包含密码
-//需要进行密码验证
+// 创建新的远程连接
+// 如果配置文件包含密码
+// 需要进行密码验证
 func NewConn(opt Option, logger *slog.Logger) (*Conn, error) {
 	netConn, err := net.DialTimeout("tcp", opt.RAddr, 5*time.Second)
 	if err != nil {
@@ -40,7 +41,7 @@ func NewConn(opt Option, logger *slog.Logger) (*Conn, error) {
 	}
 	tcpConn := netConn.(*net.TCPConn)
 
-	//设置开启KeepAlive
+	// 设置开启KeepAlive
 	tcpConn.SetKeepAlive(true)
 	tcpConn.SetKeepAlivePeriod(opt.RKeepAlivePeriod)
 
@@ -68,12 +69,12 @@ func NewConn(opt Option, logger *slog.Logger) (*Conn, error) {
 	return conn, nil
 }
 
-//查询连接是否活跃
+// 查询连接是否活跃
 func (conn *Conn) IsActive(timeout time.Duration) bool {
 	return timeout > 0 && time.Since(conn.UsedAt) < timeout
 }
 
-//获取channel chan
+// 获取channel chan
 func (conn *Conn) GetReadChan() <-chan *ChanBuf {
 	return conn.ChanRead
 }
@@ -84,7 +85,7 @@ func (conn *Conn) Write(b []byte) error {
 	return err
 }
 
-//远程地址
+// 远程地址
 func (conn *Conn) RemoteAddr() net.Addr {
 	return conn.RawConn.RemoteAddr()
 }
@@ -94,12 +95,12 @@ func (conn *Conn) Close() error {
 	return err
 }
 
-//redis的ping
+// redis的ping
 func (conn *Conn) Ping() error {
 	return conn.Cn.Ping()
 }
 
-//交换数据
+// 交换数据
 func (conn *Conn) SwapData(local net.Conn) bool {
 	return conn.Cn.SwapData(local)
 }

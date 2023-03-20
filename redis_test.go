@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/bjdgyc/slog"
 	"testing"
+
+	"poolproxy/slog"
 )
 
 func getRedis(t *testing.T) *Redis {

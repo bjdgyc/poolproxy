@@ -2,12 +2,13 @@ package main
 
 import (
 	"errors"
-	"github.com/bjdgyc/slog"
 	"net"
 	"strconv"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"poolproxy/slog"
 )
 
 var (
@@ -80,15 +81,15 @@ func NewConnPool(opt Option, logger *slog.Logger) *ConnPool {
 		p.queue <- struct{}{}
 	}
 
-	//首先创建一个连接测试
+	// 首先创建一个连接测试
 	conn, err := p.Get()
 	if err != nil {
 		p.log.Fatal(err)
 	}
-	//归还连接测试
+	// 归还连接测试
 	p.Put(conn, false)
 
-	//定时检测不活跃的连接
+	// 定时检测不活跃的连接
 	if opt.RIdleTimeout > 0 && opt.RIdleCheckFrequency > 0 {
 		go p.CheckActiveConns()
 	}
@@ -101,7 +102,7 @@ func (p *ConnPool) Get() (*Conn, error) {
 	if p.closed {
 		return nil, ErrClosed
 	}
-	//请求计数
+	// 请求计数
 	atomic.AddInt32(&p.stats.Requests, 1)
 
 	timer := timers.Get().(*time.Timer)
@@ -112,60 +113,60 @@ func (p *ConnPool) Get() (*Conn, error) {
 
 	select {
 	case <-timer.C:
-		//超时计数
+		// 超时计数
 		atomic.AddInt32(&p.stats.Timeouts, 1)
 		return nil, ErrPoolTimeout
 	case <-p.queue:
 	}
 
-	//channel是先进先出
-	//container/list可以实现先进后出，但是效率比较低
-	//这里使用slice获取最新归还的连接
+	// channel是先进先出
+	// container/list可以实现先进后出，但是效率比较低
+	// 这里使用slice获取最新归还的连接
 	var conn *Conn
 	p.lock.Lock()
 	l := len(p.freeConns)
 	if l > 0 {
 		conn = p.freeConns[l-1]
-		//清除链接
+		// 清除链接
 		p.freeConns = p.freeConns[:l-1]
 	}
 	p.lock.Unlock()
 
 	if conn != nil {
-		//命中计数
+		// 命中计数
 		atomic.AddInt32(&p.stats.Hits, 1)
-		//连接可用 直接返回
+		// 连接可用 直接返回
 		if conn.IsActive(p.opt.RIdleTimeout) && conn.Ping() == nil {
 			atomic.AddInt32(&p.stats.UseConns, 1)
 			return conn, nil
 		}
 		p.log.Warn(errConnActive)
-		//超出最大空闲时间，或链接错误
+		// 超出最大空闲时间，或链接错误
 		conn.Close()
 	}
 
-	//创建新的链接
+	// 创建新的链接
 	newcn, err := NewConn(p.opt, p.log)
 	if err != nil {
 		p.queue <- struct{}{}
 		return nil, err
 	}
-	//正在使用连接计数
+	// 正在使用连接计数
 	atomic.AddInt32(&p.stats.UseConns, 1)
 	return newcn, nil
 }
 
-//使用完后归还
+// 使用完后归还
 func (p *ConnPool) Put(conn *Conn, forceClose bool) {
-	//连接错误 强制关闭
+	// 连接错误 强制关闭
 	if forceClose || p.closed {
 		conn.Close()
-	} else { //归还
+	} else { // 归还
 		p.lock.Lock()
 		p.freeConns = append(p.freeConns, conn)
 		p.lock.Unlock()
 	}
-	//减少计数
+	// 减少计数
 	atomic.AddInt32(&p.stats.UseConns, -1)
 	if p.closed {
 		return
@@ -186,7 +187,7 @@ func (p *ConnPool) FreeLen() int {
 	return l
 }
 
-//获取连接池状态信息
+// 获取连接池状态信息
 func (p *ConnPool) Stats() *PoolStats {
 	stats := PoolStats{}
 	stats.Requests = atomic.LoadInt32(&p.stats.Requests)
@@ -197,7 +198,7 @@ func (p *ConnPool) Stats() *PoolStats {
 	return &stats
 }
 
-//关闭连接池
+// 关闭连接池
 func (p *ConnPool) Close() error {
 	if p.closed {
 		return ErrClosed
@@ -212,14 +213,14 @@ func (p *ConnPool) Close() error {
 		}
 	}
 	p.freeConns = nil
-	//关闭channel
+	// 关闭channel
 	close(p.queue)
 	p.lock.Unlock()
 
 	return nil
 }
 
-//定时检测不活跃的连接
+// 定时检测不活跃的连接
 func (p *ConnPool) CheckActiveConns() {
 	ticker := time.NewTicker(p.opt.RIdleCheckFrequency)
 	defer ticker.Stop()

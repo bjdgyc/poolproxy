@@ -15,7 +15,7 @@ type Redis struct {
 
 var _ Conner = (*Redis)(nil)
 
-//redis的ping
+// redis的ping
 func (cn *Redis) Ping() error {
 	err := cn.conn.Write([]byte("*1\r\n$4\r\nPING\r\n"))
 	if err != nil {
@@ -31,7 +31,7 @@ func (cn *Redis) Ping() error {
 	return nil
 }
 
-//redis 权限验证
+// redis 权限验证
 func (cn *Redis) Auth(user, pass string) error {
 	if pass == "" {
 		return nil
@@ -52,7 +52,7 @@ func (cn *Redis) Auth(user, pass string) error {
 	return nil
 }
 
-//redis 数据读取
+// redis 数据读取
 func (cn *Redis) ReadData() {
 	var (
 		line []byte
@@ -70,7 +70,7 @@ func (cn *Redis) ReadData() {
 	}
 }
 
-//redis数据交换
+// redis数据交换
 func (cn *Redis) SwapData(local net.Conn) bool {
 	lread := bufio.NewReader(local)
 
@@ -81,7 +81,7 @@ func (cn *Redis) SwapData(local net.Conn) bool {
 		cb            *ChanBuf
 	)
 
-	//读取数据
+	// 读取数据
 	go func() {
 		var (
 			line []byte
@@ -106,7 +106,7 @@ func (cn *Redis) SwapData(local net.Conn) bool {
 		exitChanProxy <- struct{}{}
 	}()
 
-	//客户端写回数据
+	// 客户端写回数据
 	readChan := cn.conn.GetReadChan()
 	for {
 		select {
@@ -118,7 +118,7 @@ func (cn *Redis) SwapData(local net.Conn) bool {
 				cn.conn.log.Error("remote read error:", err)
 				goto FAIL
 			}
-			//fmt.Println(string(cb.Byte))
+			// fmt.Println(string(cb.Byte))
 			_, err = local.Write(cb.Byte)
 			if err != nil {
 				cn.conn.log.Error("local write error:", err)
